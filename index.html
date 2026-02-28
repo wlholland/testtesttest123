@@ -153,6 +153,25 @@
 
     .empty { color: #aaa; text-align: center; margin-top: 40px; }
 
+    nav {
+      background: #e76f51;
+      display: flex;
+      gap: 4px;
+      padding: 0 40px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-bottom: 3px solid transparent;
+    }
+
+    nav a:hover { background: rgba(255,255,255,0.1); }
+    nav a.active { border-bottom-color: #fff; }
+
     footer {
       text-align: center;
       padding: 32px;
@@ -170,6 +189,11 @@
   </div>
   <button class="cart-btn" onclick="openCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
 </header>
+
+<nav>
+  <a href="/" class="active">Shop</a>
+  <a href="/incoming">Incoming Shipments</a>
+</nav>
 
 <main>
   <h2>Available Hamsters</h2>

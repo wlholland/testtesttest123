@@ -4,9 +4,16 @@ const path = require('path');
 
 const PORT = 3000;
 
+const routes = {
+  '/':         'index.html',
+  '/index.html': 'index.html',
+  '/incoming': 'incoming.html',
+};
+
 const server = http.createServer((req, res) => {
-  if (req.url === '/' || req.url === '/index.html') {
-    fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
+  const file = routes[req.url];
+  if (file) {
+    fs.readFile(path.join(__dirname, file), (err, data) => {
       if (err) {
         res.writeHead(500);
         res.end('Error loading page');
