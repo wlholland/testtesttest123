@@ -1,6 +1,6 @@
 # VibeSec Security Report
 Repo: wlholland/testtesttest123
-Scanned: 2026-02-28 23:43:52 UTC
+Scanned: 2026-02-28 23:52:25 UTC
 Issues Found: 1
 
 You are an AI coding agent. Fix each issue below in order.
@@ -13,7 +13,7 @@ After fixing all issues run the verification step for each.
 **File:** secrets.env
 **Type:** Environment file
 **Line:** 12
-**Evidence:** `SECRET=change-this-to-a-long-random-secret-before-deploying`
+**Evidence:** `SECRET=change-this-to-a-long-random-secret-before-deployingf...`
 **Risk:** Fix this issue to reduce security risk.
 
 **Fix Steps:**
