@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hamster Haven</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff8f0;
+      color: #333;
+    }
+
+    header {
+      background: #f4a261;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 { font-size: 2rem; color: #fff; }
+    header p  { color: #fff3e0; font-size: 0.95rem; }
+
+    .cart-btn {
+      background: #fff;
+      color: #f4a261;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    h2 { text-align: center; margin-bottom: 32px; font-size: 1.6rem; color: #e76f51; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .card:hover { transform: translateY(-4px); }
+
+    .card .emoji { font-size: 5rem; padding: 28px 0 12px; background: #fff3e0; }
+
+    .card .info { padding: 16px; }
+    .card h3 { font-size: 1.1rem; margin-bottom: 4px; }
+    .card .desc { font-size: 0.85rem; color: #888; margin-bottom: 12px; }
+    .card .price { font-size: 1.3rem; font-weight: 700; color: #f4a261; margin-bottom: 14px; }
+
+    .card button {
+      background: #f4a261;
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 24px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .card button:hover { background: #e76f51; }
+
+    /* Cart drawer */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 10;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0; right: -380px;
+      width: 360px; height: 100%;
+      background: #fff;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+      z-index: 11;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s ease;
+      padding: 24px;
+    }
+
+    .drawer.open { right: 0; }
+    .overlay.open { display: block; }
+
+    .drawer h2 { margin-bottom: 20px; color: #e76f51; }
+
+    #cart-items { flex: 1; overflow-y: auto; }
+
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-row span { font-size: 0.95rem; }
+    .cart-row .price { color: #f4a261; font-weight: 600; }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover { color: #e76f51; }
+
+    #cart-total {
+      margin-top: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .checkout-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 14px;
+      background: #f4a261;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .checkout-btn:hover { background: #e76f51; }
+
+    .empty { color: #aaa; text-align: center; margin-top: 40px; }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: #bbb;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🐹 Hamster Haven</h1>
+    <p>Your #1 source for the world's cutest companions</p>
+  </div>
+  <button class="cart-btn" onclick="openCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
+</header>
+
+<main>
+  <h2>Available Hamsters</h2>
+  <div class="grid" id="shop"></div>
+</main>
+
+<footer>© 2026 Hamster Haven — All hamsters are loved and responsibly bred.</footer>
+
+<!-- Cart -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="drawer" id="drawer">
+  <h2>🛒 Your Cart</h2>
+  <div id="cart-items"><p class="empty">Your cart is empty.</p></div>
+  <div id="cart-total"></div>
+  <button class="checkout-btn" onclick="checkout()">Checkout</button>
+</div>
+
+<script>
+  const hamsters = [
+    { id: 1, name: 'Fluffy',    emoji: '🐹', breed: 'Syrian',       desc: 'Super fluffy and loves cuddles.',        price: 24.99 },
+    { id: 2, name: 'Nibbles',   emoji: '🐭', breed: 'Dwarf Winter',  desc: 'Tiny, energetic, and full of mischief.', price: 18.99 },
+    { id: 3, name: 'Caramel',   emoji: '🐹', breed: 'Roborovski',   desc: 'The speedster of the hamster world.',    price: 21.99 },
+    { id: 4, name: 'Peanut',    emoji: '🐭', breed: 'Campbell\'s',   desc: 'Calm and great for first-time owners.',  price: 16.99 },
+    { id: 5, name: 'Snowball',  emoji: '🐹', breed: 'Syrian (White)', desc: 'Pure white coat, very gentle.',         price: 26.99 },
+    { id: 6, name: 'Hazel',     emoji: '🐭', breed: 'Chinese',      desc: 'Slim and surprisingly quick learner.',   price: 19.99 },
+  ];
+
+  let cart = [];
+
+  // Render shop
+  const shop = document.getElementById('shop');
+  hamsters.forEach(h => {
+    shop.innerHTML += `
+      <div class="card">
+        <div class="emoji">${h.emoji}</div>
+        <div class="info">
+          <h3>${h.name}</h3>
+          <div class="desc">${h.breed} · ${h.desc}</div>
+          <div class="price">$${h.price.toFixed(2)}</div>
+          <button onclick="addToCart(${h.id})">Add to Cart</button>
+        </div>
+      </div>`;
+  });
+
+  function addToCart(id) {
+    const h = hamsters.find(h => h.id === id);
+    const existing = cart.find(c => c.id === id);
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({ ...h, qty: 1 });
+    }
+    updateCartUI();
+    openCart();
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(c => c.id !== id);
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+    const count = cart.reduce((s, c) => s + c.qty, 0);
+
+    document.getElementById('cart-count').textContent = count;
+
+    const itemsEl = document.getElementById('cart-items');
+    if (cart.length === 0) {
+      itemsEl.innerHTML = '<p class="empty">Your cart is empty.</p>';
+      document.getElementById('cart-total').textContent = '';
+      return;
+    }
+
+    itemsEl.innerHTML = cart.map(c => `
+      <div class="cart-row">
+        <span>${c.emoji} ${c.name} × ${c.qty}</span>
+        <span class="price">$${(c.price * c.qty).toFixed(2)}</span>
+        <button class="remove-btn" onclick="removeFromCart(${c.id})">✕</button>
+      </div>`).join('');
+
+    document.getElementById('cart-total').textContent = `Total: $${total.toFixed(2)}`;
+  }
+
+  function openCart()  {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+
+  function closeCart() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  function checkout() {
+    if (cart.length === 0) { alert('Your cart is empty!'); return; }
+    alert('🐹 Thanks for your order! Your hamsters are on their way!');
+    cart = [];
+    updateCartUI();
+    closeCart();
+  }
+</script>
+</body>
+</html>
